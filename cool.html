@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+
+    <!-- External Resources-->
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <script src="js/d3.v3.js"></script>
+    <script src="js/wolib.js"></script>
+    <script src="js/index.js"></script>
+
+    <!-- BOOTSTRAP-->
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            //an example
+            var options = {
+                //things you'd like to do AFTER having the access token
+                after: function (token) {
+                    alert('Your access token is ' + token); // show your access token
+                },
+                //things you'd like to do BEFORE having the access token
+                before: function (authUrl) {
+                    $('div.authenticate').show();
+                    $("a").attr("href", authUrl); //display a link to 
+                }
+            };
+
+            var client = WoClient("53cd0826eaba57bd64ffa6fb", options); //new client
+
+            var queryopt = {
+                query: {
+                    query: "wikipedia_hose" //mongodb query, required
+                },
+                //dataset id of interest, required
+                dataset: "543e79000124b4b01c40612f" //wiki live stream mongodb 
+            };
+
+            //callback function, what you'd like to do with the results, stored in response
+            var nowIhaveData = function (data) {
+
+                if (data) {
+                    var pattern = /streamid = "(.+?)";/, streamid = data.match(pattern)[1];
+                    if (streamid) {
+                        return main(streamid);
+                    }
+                }
+                alert("Error occurred");
+            };
+
+            client.query(queryopt, nowIhaveData);
+         }) ;
+    </script>
+</head>
+
+<body>
+
+<a href="">Connect</a>
+
+<div id="collageContainer" class="thumbimg"></div>
+
+
+</body>

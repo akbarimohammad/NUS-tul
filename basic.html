@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Web Observatory API Tutorial</title>
+    <script src="js/jquery-1.10.2.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        //-------------------------------API lib-------------------------------------------
+        var WoClient = function (clientId, options) {
+            //basic settings
+            var me = {},//the new WoAPI instance
+                    host = "webobservatory.soton.ac.uk",
+                    woHost = "https://" + host,
+                    resourceHost = "https://" + host + "/api/wo/",
+                    endUserAuthorizationEndpoint = woHost + "/oauth/authorise",
+                    after = options.after,
+                    before = options.before;
+
+            me.authURL = endUserAuthorizationEndpoint +
+            "?response_type=token" +
+            "&client_id=" + clientId +
+            "&redirect_uri=" + window.location;
+
+            //private functions
+
+            //helper function to extract the Access Token
+            var extractToken = function (hash) {
+                var match = hash.match(/access_token=((%|\w)+)/);
+                return !!match && decodeURIComponent(match[1]);
+            };
+
+            //public functions
+
+            //query a dataset identified by dataset id
+            me.query = function (options, cb) {
+                me.token = extractToken(document.location.hash);
+
+                if (me.token) {
+                    if (after && typeof after === 'function') {
+                        after(me.token);
+                    }
+
+                    $.ajax(
+                            {
+                                type: 'get',
+                                url: resourceHost + options.dataset + '/endpoint',
+                                data: options.query,
+                                headers: {
+                                    Authorization: 'Bearer ' + me.token
+                                }
+                            }).done(cb);
+                }
+                else {
+                    if (before && typeof before === 'function') {
+                        before(me.authURL);
+                    }
+                }
+            };
+            return me;
+        };
+        //-------------------------------API lib-------------------------------------------
+
+        //do your business here
+        $(function () {
+            //an example
+            var options = {
+                //things you'd like to do AFTER having the access token
+                after: function (token) {
+                    alert('Your access token is ' + token);// show your access token
+                },
+                //things you'd like to do BEFORE having the access token
+                before: function (authUrl) {
+                    $('div.authenticate').show();
+                    $("a.connect").attr("href", authUrl);//display a link to 
+                }
+            };
+
+            var client = WoClient("53cd0826eaba57bd64ffa6fb", options);//new client
+
+            var queryopt = {
+                query: {
+                    modname: "tweets",//mongodb collection name, required
+                    query: "{}",//mongodb query, required
+                    limit: 20,//query modifier, optional
+                    skip: 0//query modifier, optional
+                },
+                //dataset id of interest, required
+                dataset: "548047c832582f2c45520ce7"//ebola mongodb 
+            };
+
+            //callback function, what you'd like to do with the results, stored in response
+            var nowIhaveData = function (data) {
+                console.log(data);
+
+                var container = $('span.user');
+                if (data) {
+                    alert(data);
+                    container.text(data);
+                }
+                else {
+                    alert("Error occured");
+                    container.text("An error occurred.");
+                }
+            };
+
+            client.query(queryopt, nowIhaveData);
+        });
+    </script>
+</head>
+
+<body>
+<div class="col-lg-4"></div>
+<div class="col-lg-4 authenticated">
+    <div class="authenticate">
+        <a class="connect btn btn-primary" href="">Connect</a>
+    </div>
+    <p>
+        Your resutl:
+        <br/>
+        <span class="user">Loading...</span>.
+    </p>
+</div>
+<div class="col-lg-4"></div>
+</body>
+
+</html>
