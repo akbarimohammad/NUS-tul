@@ -7,70 +7,105 @@
     <title>Web Observatory API Tutorial</title>
     <script type="text/javascript" charset="utf-8" src="js/jquery-1.10.2.min.js"></script>
     <script type="text/javascript" charset="utf-8">
-        $(function()
-        {
-            var setting = {
-                clientId: "53cd0826eaba57bd64ffa6fb", //YOUR_CLINET_ID
-                query:
-                {
-                    modname: "users",
-                    query: "{}",
-                    limit: "2"
-                },
-                dataset: "5486f32329d80b4428253250" //dataset id of interest
-            };
+        //-------------------------------API lib-------------------------------------------
+        var WoClient = function (clientId, options) {
+            //basic settings
+            var me = {},//the new WoAPI instance
+                    host = "webobservatory.soton.ac.uk",
+                    woHost = "https://" + host,
+                    resourceHost = "https://" + host + "/api/wo/",
+                    endUserAuthorizationEndpoint = woHost + "/oauth/authorise",
+                    after = options.after,
+                    before = options.before;
 
-            var host = "webobservatory.soton.ac.uk",
-                woHost = "https://" + host,
-                resourceHost = "https://" + host + "/api/wo/",
-                endUserAuthorizationEndpoint = woHost + "/oauth/authorise";
+            me.authURL = endUserAuthorizationEndpoint +
+            "?response_type=token" +
+            "&client_id=" + clientId +
+            "&redirect_uri=" + window.location;
+
+            //private functions
 
             //helper function to extract the Access Token
-            var extractToken = function(hash)
-            {
+            var extractToken = function (hash) {
                 var match = hash.match(/access_token=((%|\w)+)/);
                 return !!match && decodeURIComponent(match[1]);
             };
 
-            var token = extractToken(document.location.hash);
-            if (token)
-            {
-                $('div.authenticated').show();
-                $('span.token').text(token);
-                $.ajax(
-                {
-                    type: 'get',
-                    url: resourceHost + setting.dataset + '/endpoint',
-                    data: setting.query,
-                    headers:
-                    {
-                        Authorization: 'Bearer ' + token
-                    }
-                }).done(function(response)
-                {
-                    var container = $('span.user');
-                    if (response)
-                    {
-                        console.log(response);
-                        container.text(response);
-                    }
-                    else
-                    {
-                        container.text("An error occurred.");
-                    }
-                });
-            }
-            else
-            {
-                $('div.authenticate').show();
+            //public functions
 
-                var authUrl = endUserAuthorizationEndpoint +
-                    "?response_type=token" +
-                    "&client_id=" + setting.clientId +
-                    "&redirect_uri=" + window.location;
+            //query a dataset identified by dataset id
+            me.query = function (options, cb) {
+                me.token = extractToken(document.location.hash);
 
-                $("a.connect").attr("href", authUrl);
-            }
+                if (me.token) {
+                    if (after && typeof after === 'function') {
+                        after(me.token);
+                    }
+
+                    $.ajax(
+                            {
+                                type: 'get',
+                                url: resourceHost + options.dataset + '/endpoint',
+                                data: options.query,
+                                headers: {
+                                    Authorization: 'Bearer ' + me.token
+                                }
+                            }).done(cb);
+                }
+                else {
+                    if (before && typeof before === 'function') {
+                        before(me.authURL);
+                    }
+                }
+            };
+            return me;
+        };
+        //-------------------------------API lib-------------------------------------------
+
+        //do your business here
+        $(function () {
+            //an example
+            var options = {
+                //things you'd like to do AFTER having the access token
+                after: function (token) {
+                    alert('Your access token is ' + token);// show your access token
+                },
+                //things you'd like to do BEFORE having the access token
+                before: function (authUrl) {
+                    $('div.authenticate').show();
+                    $("a.connect").attr("href", authUrl);//display a link to 
+                }
+            };
+
+            var client = WoClient("53cd0826eaba57bd64ffa6fb", options);//new client
+
+            var queryopt = {
+                query: {
+                    modname: "tweets",//mongodb collection name, required
+                    query: "{}",//mongodb query, required
+                    limit: 20,//query modifier, optional
+                    skip: 0//query modifier, optional
+                },
+                //dataset id of interest, required
+                dataset: "548047c832582f2c45520ce7"//ebola mongodb 
+            };
+
+            //callback function, what you'd like to do with the results, stored in response
+            var nowIhaveData = function (data) {
+                console.log(data);
+
+                var container = $('span.user');
+                if (data) {
+                    alert(data);
+                    container.text(data);
+                }
+                else {
+                    alert("Error occured");
+                    container.text("An error occurred.");
+                }
+            };
+
+            client.query(queryopt, nowIhaveData);
         });
     </script>
     <style>
@@ -81,21 +116,17 @@
 </head>
 
 <body>
-    <div class="authenticate hidden">
-        <a class="connect" href="">Connect</a>
-    </div>
+<div class="authenticate hidden">
+    <a class="connect" href="">Connect</a>
+</div>
 
-    <div class="authenticated hidden">
-        <p>
-            You are using token
-            <span class="token">[no token]</span>.
-        </p>
-
-        <p>
-            Your resutl:
-            <span class="user">[no username]</span>.
-        </p>
-    </div>
+<div class="authenticated">
+    <p>
+        Your resutl:
+        <br/>
+        <span class="user">Loading...</span>.
+    </p>
+</div>
 </body>
 
 </html>
