@@ -177,13 +177,14 @@
                 var container = $('p.result');
                 if (data)
                 {
-                    $('a.connect').fadeOut();
-                    container.text(data);
+                  alert(data);
+                    //$('a.connect').fadeOut();
+                    //container.text(data);
                 }
                 else
                 {
                     alert("Error occured");
-                    container.text("An error occurred.");
+                    //container.text("An error occurred.");
                 }
             };
             client.query(queryopt, nowIhaveData);
