@@ -3,34 +3,101 @@
 <html lang="en">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Web Observatory API Tutorial</title>
-    <script src="js/jquery-1.10.2.min.js"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="http://getbootstrap.com/favicon.ico">
+
+    <title>WO API Examples</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/cover.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="./Cover Template for Bootstrap_files/ie-emulation-modes-warning.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+    <div class="site-wrapper">
+
+        <div class="site-wrapper-inner">
+
+            <div class="cover-container">
+
+                <div class="masthead clearfix">
+                    <div class="inner">
+                        <h3 class="masthead-brand">Web Observatory</h3>
+                        <nav>
+                            <ul class="nav masthead-nav">
+                                <li class="active"><a href="http://webobservatory.soton.ac.uk">Web Observatory</a>
+                                </li>
+                                <li><a href="https://github.com/xgfd/NUS-tul">Github Entry</a>
+                                </li>
+                                <li><a href="http://webobservatory.soton.ac.uk/wo/visualisation#5489d93e5d38cda3271d843d">More info</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+
+                <div class="inner cover">
+                    <h1 class="cover-heading">Basic example</h1>
+                    <p class="lead">Click to see results</p>
+                    <p class="lead">
+                        <a href="#" class="btn btn-lg btn-default connect">Connect</a>
+                        <p class="lead result"></p>
+                </div>
+                <div class="mastfoot">
+                    <div class="inner">
+                        <p>Cover template for <a href="http://getbootstrap.com/">Bootstrap</a>, by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./Cover Template for Bootstrap_files/jquery.min.js"></script>
     <script type="text/javascript" charset="utf-8">
         //-------------------------------API lib-------------------------------------------
-        var WoClient = function (clientId, options) {
+        var WoClient = function(clientId, options)
+        {
             //basic settings
-            var me = {},//the new WoAPI instance
-                    host = "webobservatory.soton.ac.uk",
-                    woHost = "https://" + host,
-                    resourceHost = "https://" + host + "/api/wo/",
-                    endUserAuthorizationEndpoint = woHost + "/oauth/authorise",
-                    after = options.after,
-                    before = options.before;
+            var me = {}, //the new WoAPI instance
+                host = "webobservatory.soton.ac.uk",
+                woHost = "https://" + host,
+                resourceHost = "https://" + host + "/api/wo/",
+                endUserAuthorizationEndpoint = woHost + "/oauth/authorise",
+                after = options.after,
+                before = options.before;
 
             me.authURL = endUserAuthorizationEndpoint +
-            "?response_type=token" +
-            "&client_id=" + clientId +
-            "&redirect_uri=" + window.location;
+                "?response_type=token" +
+                "&client_id=" + clientId +
+                "&redirect_uri=" + window.location;
 
             //private functions
 
             //helper function to extract the Access Token
-            var extractToken = function (hash) {
+            var extractToken = function(hash)
+            {
                 var match = hash.match(/access_token=((%|\w)+)/);
                 return !!match && decodeURIComponent(match[1]);
             };
@@ -38,95 +105,111 @@
             //public functions
 
             //query a dataset identified by dataset id
-            me.query = function (options, cb) {
+            me.query = function(options, cb)
+            {
                 me.token = extractToken(document.location.hash);
 
-                if (me.token) {
-                    if (after && typeof after === 'function') {
+                if (me.token)
+                {
+                    if (after && typeof after === 'function')
+                    {
                         after(me.token);
                     }
 
                     $.ajax(
-                            {
-                                type: 'get',
-                                url: resourceHost + options.dataset + '/endpoint',
-                                data: options.query,
-                                headers: {
-                                    Authorization: 'Bearer ' + me.token
-                                }
-                            }).done(cb);
+                    {
+                        type: 'get',
+                        url: resourceHost + options.dataset + '/endpoint',
+                        data: options.query,
+                        headers:
+                        {
+                            Authorization: 'Bearer ' + me.token
+                        }
+                    }).done(cb);
                 }
-                else {
-                    if (before && typeof before === 'function') {
+                else
+                {
+                    if (before && typeof before === 'function')
+                    {
                         before(me.authURL);
                     }
                 }
             };
             return me;
         };
-        //-------------------------------API lib-------------------------------------------
+         //-------------------------------API lib-------------------------------------------
 
-        //do your business here
-        $(function () {
+         //do your business here
+        $(function()
+        {
             //an example
             var options = {
                 //things you'd like to do AFTER having the access token
-                after: function (token) {
-                    alert('Your access token is ' + token);// show your access token
+                after: function(token)
+                {
+                    alert('Your access token is ' + token); // show your access token
                 },
                 //things you'd like to do BEFORE having the access token
-                before: function (authUrl) {
-                    $('div.authenticate').show();
-                    $("a.connect").attr("href", authUrl);//display a link to 
+                before: function(authUrl)
+                {
+                    $("a.connect").attr("href", authUrl); //display a link to 
                 }
             };
 
-            var client = WoClient("53cd0826eaba57bd64ffa6fb", options);//new client
+            var client = WoClient("53cd0826eaba57bd64ffa6fb", options); //new client
 
             var queryopt = {
-                query: {
-                    modname: "tweets",//mongodb collection name, required
-                    query: "{}",//mongodb query, required
-                    limit: 20,//query modifier, optional
-                    skip: 0//query modifier, optional
+                query:
+                {
+                    modname: "tweets", //mongodb collection name, required
+                    query: "{}", //mongodb query, required
+                    limit: 20, //query modifier, optional
+                    skip: 0 //query modifier, optional
                 },
                 //dataset id of interest, required
-                dataset: "548047c832582f2c45520ce7"//ebola mongodb 
+                dataset: "548047c832582f2c45520ce7" //ebola mongodb 
             };
 
             //callback function, what you'd like to do with the results, stored in response
-            var nowIhaveData = function (data) {
-                console.log(data);
+            var nowIhaveData = function(data)
+            {
 
-                var container = $('span.user');
-                if (data) {
-                    alert(data);
+                var container = $('p.result');
+                if (data)
+                {
+                    $('a.connect').fadeOut();
                     container.text(data);
                 }
-                else {
+                else
+                {
                     alert("Error occured");
                     container.text("An error occurred.");
                 }
             };
-
             client.query(queryopt, nowIhaveData);
         });
     </script>
-</head>
+    <script src="./Cover Template for Bootstrap_files/bootstrap.min.js"></script>
+    <script src="./Cover Template for Bootstrap_files/docs.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <script src="./Cover Template for Bootstrap_files/ie10-viewport-bug-workaround.js"></script>
 
-<body>
-<div class="col-lg-4"></div>
-<div class="col-lg-4 authenticated">
-    <div class="authenticate">
-        <a class="connect btn btn-primary" href="">Connect</a>
+
+    <div id="global-zeroclipboard-html-bridge" class="global-zeroclipboard-container" title="" style="position: absolute; left: 0px; top: -9999px; width: 15px; height: 15px; z-index: 999999999;" data-original-title="Copy to clipboard">
+        <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" id="global-zeroclipboard-flash-bridge" width="100%" height="100%">
+            <param name="movie" value="/assets/flash/ZeroClipboard.swf?noCache=1418347684662">
+            <param name="allowScriptAccess" value="sameDomain">
+            <param name="scale" value="exactfit">
+            <param name="loop" value="false">
+            <param name="menu" value="false">
+            <param name="quality" value="best">
+            <param name="bgcolor" value="#ffffff">
+            <param name="wmode" value="transparent">
+            <param name="flashvars" value="trustedOrigins=getbootstrap.com%2C%2F%2Fgetbootstrap.com%2Chttp%3A%2F%2Fgetbootstrap.com">
+            <embed src="/assets/flash/ZeroClipboard.swf?noCache=1418347684662" loop="false" menu="false" quality="best" bgcolor="#ffffff" width="100%" height="100%" name="global-zeroclipboard-flash-bridge" allowscriptaccess="sameDomain" allowfullscreen="false"
+            type="application/x-shockwave-flash" wmode="transparent" pluginspage="http://www.macromedia.com/go/getflashplayer" flashvars="trustedOrigins=getbootstrap.com%2C%2F%2Fgetbootstrap.com%2Chttp%3A%2F%2Fgetbootstrap.com" scale="exactfit">
+        </object>
     </div>
-    <p>
-        Your resutl:
-        <br/>
-        <span class="user">Loading...</span>.
-    </p>
-</div>
-<div class="col-lg-4"></div>
 </body>
 
 </html>

@@ -4,11 +4,12 @@ function main(streamid) {
     //SOCKET IOCODE
 
     var socket = io.connect('https://webobservatory.soton.ac.uk:443/' + streamid);
-    console.log(streamid);
     //var socket = io.connect('http://sociamvm-app-001.ecs.soton.ac.uk:90
     socket.on('chunk', function(tweet) {
         console.log(tweet);
 
+        $('#collageContainer').append(tweet);
+/*
         var image_url = "";
         try {
 
@@ -44,6 +45,6 @@ function main(streamid) {
             }
         } catch (e) {}
         //console.log(tweet)
-
+*/
     });
 }
